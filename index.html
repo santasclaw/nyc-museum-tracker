@@ -396,4 +396,324 @@ input[type="checkbox"] {
   color: var(--ink-3);
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1
+  font-size: 1.1rem;
+}
+
+.results-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.results-count {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.reset-btn {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0;
+}
+
+.reset-btn:hover { color: var(--terracotta); }
+
+footer {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.footer-note {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 700px) {
+  .col-free { display: none; }
+  .col-boro { display: none; }
+  .col-dist { width: 56px; }
+  .masthead  { padding: 2.5rem 1.25rem 2rem; }
+  .stat-block { padding-right: 1.5rem; margin-right: 1.5rem; }
+  .stat-num { font-size: 2rem; }
+  td, th { padding: 9px 10px; }
+}
+
+@media (max-width: 480px) {
+  .col-num { display: none; }
+  .body-wrap { padding: 1.5rem 1rem 4rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-eyebrow">Museum Tracker &mdash; DUMBO, Brooklyn</div>
+    <h1>New York<br><em>Museums</em></h1>
+    <div class="masthead-sub">One a week &mdash; all five boroughs</div>
+    <div class="stats-bar">
+      <div class="stat-block">
+        <div class="stat-num" id="s-visited">0</div>
+        <div class="stat-label">Visited</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num" id="s-remaining">0</div>
+        <div class="stat-label">Remaining</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num" id="s-weeks">0<span style="font-size:1.4rem;color:rgba(250,247,242,0.4)"> yrs</span></div>
+        <div class="stat-label">At 1/week</div>
+      </div>
+      <div class="progress-block">
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="progress-text" id="progress-text">0 of 0 complete</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="body-wrap">
+
+  <div class="borough-tabs">
+    <button class="borough-tab active" data-b="all">All boroughs</button>
+    <button class="borough-tab" data-b="Brooklyn">Brooklyn</button>
+    <button class="borough-tab" data-b="Manhattan">Manhattan</button>
+    <button class="borough-tab" data-b="Queens">Queens</button>
+    <button class="borough-tab" data-b="Bronx">Bronx</button>
+    <button class="borough-tab" data-b="Staten Island">Staten Island</button>
+  </div>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Search by name or address…" />
+    </div>
+    <button class="filter-btn active" data-f="all">All</button>
+    <button class="filter-btn" data-f="free">Free days</button>
+    <button class="filter-btn" data-f="unvisited">Unvisited</button>
+    <button class="filter-btn" data-f="visited">Visited</button>
+  </div>
+
+  <div class="results-meta">
+    <div class="results-count" id="results-count">— museums</div>
+    <button class="reset-btn" id="reset-btn">Reset all visited</button>
+  </div>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-check"></th>
+          <th class="col-num">#</th>
+          <th class="col-name">Museum</th>
+          <th class="col-boro">Borough</th>
+          <th class="col-dist">Distance</th>
+          <th class="col-free">Free public days</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <div class="footer-note">Distances approximate from DUMBO, Brooklyn</div>
+    <div class="footer-note">Verify admission policies before visiting — they change</div>
+  </footer>
+
+</div>
+
+<script>
+const MUSEUMS = [
+  { name:"Museum of Food and Drink (MOFAD)", addr:"55 Water St, 2nd Fl", boro:"Brooklyn", dist:0.3, url:"https://www.mofad.org", free:"Pay-what-you-wish" },
+  { name:"New York Transit Museum", addr:"99 Schermerhorn St", boro:"Brooklyn", dist:0.7, url:"https://www.nytransitmuseum.org", free:null },
+  { name:"Center for Brooklyn History", addr:"128 Pierrepont St", boro:"Brooklyn", dist:1.0, url:"https://www.bklynlibrary.org/locations/center-for-brooklyn-history", free:"Always free" },
+  { name:"The Waterfront Museum", addr:"290 Conover St, Red Hook", boro:"Brooklyn", dist:2.2, url:"https://www.waterfrontmuseum.org", free:"Thursdays: free" },
+  { name:"The Bone Museum", addr:"255 McKibbin St", boro:"Brooklyn", dist:3.0, url:"https://www.thebonemuseum.com", free:null },
+  { name:"Brooklyn Museum", addr:"200 Eastern Pkwy", boro:"Brooklyn", dist:3.4, url:"https://www.brooklynmuseum.org", free:"First Saturdays 5–11pm: free" },
+  { name:"Lefferts Historic House", addr:"452 Flatbush Ave, Prospect Park", boro:"Brooklyn", dist:4.0, url:"https://www.prospectpark.org/visit-the-park/places/lefferts-historic-house", free:"Always free" },
+  { name:"Brooklyn Children's Museum", addr:"145 Brooklyn Ave", boro:"Brooklyn", dist:4.2, url:"https://www.brooklynkids.org", free:"Thursdays 2–5pm: free" },
+  { name:"Jewish Children's Museum", addr:"792 Eastern Pkwy", boro:"Brooklyn", dist:5.2, url:"https://jcm.museum", free:null },
+  { name:"Weeksville Heritage Center", addr:"158 Buffalo Ave", boro:"Brooklyn", dist:5.5, url:"https://www.weeksvillesociety.org", free:null },
+  { name:"Living Torah Museum", addr:"1601 41st St", boro:"Brooklyn", dist:7.1, url:"https://www.torahmuseum.com", free:"Free tours by appt." },
+  { name:"Wyckoff House Museum", addr:"5816 Clarendon Rd", boro:"Brooklyn", dist:8.8, url:"https://www.wyckoffassociation.org", free:null },
+  { name:"Museum at Eldridge Street", addr:"12 Eldridge St", boro:"Manhattan", dist:1.6, url:"https://www.eldridgestreet.org", free:"Fridays: pay-what-you-wish" },
+  { name:"Museum of Jewish Heritage", addr:"36 Battery Pl", boro:"Manhattan", dist:1.9, url:"https://mjhnyc.org", free:"Wed & Thurs evenings: free" },
+  { name:"Skyscraper Museum", addr:"39 Battery Pl", boro:"Manhattan", dist:2.0, url:"https://www.skyscraper.org", free:null },
+  { name:"Tenement Museum", addr:"103 Orchard St", boro:"Manhattan", dist:2.0, url:"https://www.tenement.org", free:null },
+  { name:"New Museum", addr:"235 Bowery", boro:"Manhattan", dist:2.3, url:"https://www.newmuseum.org", free:"Thursdays 7–9pm: pay-what-you-wish" },
+  { name:"Hall des Lumières", addr:"49 Chambers St", boro:"Manhattan", dist:2.4, url:"https://halldeslumieres.com", free:null },
+  { name:"Museum of Chinese in America (MOCA)", addr:"215 Centre St", boro:"Manhattan", dist:2.5, url:"https://www.mocanyc.org", free:"Thursdays: free" },
+  { name:"Mercer Labs", addr:"21 Dey St", boro:"Manhattan", dist:2.8, url:"https://mercerlabs.com", free:null },
+  { name:"NYC Fire Museum", addr:"278 Spring St", boro:"Manhattan", dist:3.3, url:"https://www.nycfiremuseum.org", free:null },
+  { name:"Leslie-Lohman Museum of Art", addr:"26 Wooster St", boro:"Manhattan", dist:3.3, url:"https://www.leslielohman.org", free:"Always free" },
+  { name:"Color Factory NYC", addr:"251 Spring St", boro:"Manhattan", dist:3.7, url:"https://colorfactory.co/nyc", free:null },
+  { name:"The Morgan Library & Museum", addr:"225 Madison Ave", boro:"Manhattan", dist:4.2, url:"https://www.themorgan.org", free:"Fridays 5–8pm: free" },
+  { name:"Museum of Illusions NYC", addr:"77 8th Ave", boro:"Manhattan", dist:4.7, url:"https://moinyc.com", free:null },
+  { name:"Whitney Museum of American Art", addr:"99 Gansevoort St", boro:"Manhattan", dist:4.8, url:"https://whitney.org", free:"Fridays 5–10pm & 2nd Sundays: free" },
+  { name:"ARTECHOUSE NYC", addr:"439 W 15th St", boro:"Manhattan", dist:5.0, url:"https://www.artechouse.com/location/nyc", free:null },
+  { name:"Museum of Arts and Design (MAD)", addr:"2 Columbus Circle", boro:"Manhattan", dist:5.8, url:"https://madmuseum.org", free:"Thursdays 6–9pm: pay-what-you-wish" },
+  { name:"The Museum of Modern Art (MoMA)", addr:"11 W 53rd St", boro:"Manhattan", dist:6.1, url:"https://www.moma.org", free:"Free for under 16" },
+  { name:"Arte Museum New York", addr:"61 Chelsea Piers", boro:"Manhattan", dist:6.2, url:"https://arte.museum/newyork", free:null },
+  { name:"Intrepid Sea, Air & Space Museum", addr:"Pier 86, W 46th St", boro:"Manhattan", dist:6.8, url:"https://www.intrepidmuseum.org", free:null },
+  { name:"Museum of the City of New York", addr:"1220 5th Ave", boro:"Manhattan", dist:6.9, url:"https://www.mcny.org", free:"Sundays: pay-what-you-wish" },
+  { name:"El Museo del Barrio", addr:"1230 5th Ave", boro:"Manhattan", dist:7.0, url:"https://www.elmuseo.org", free:"Thursdays & 3rd Saturdays: free" },
+  { name:"The Frick Collection", addr:"1 E 70th St", boro:"Manhattan", dist:7.0, url:"https://www.frick.org", free:"Free for under 10" },
+  { name:"Yeshiva University Museum", addr:"15 W 16th St", boro:"Manhattan", dist:7.2, url:"https://www.yumuseum.org", free:null },
+  { name:"Studio Museum in Harlem", addr:"144 W 125th St", boro:"Manhattan", dist:7.3, url:"https://www.studiomuseum.org", free:"Always free (temporary space)" },
+  { name:"Cooper Hewitt, Smithsonian Design Museum", addr:"2 E 91st St", boro:"Manhattan", dist:7.5, url:"https://www.cooperhewitt.org", free:null },
+  { name:"The Metropolitan Museum of Art", addr:"1000 5th Ave", boro:"Manhattan", dist:7.6, url:"https://www.metmuseum.org", free:"NYC residents: pay-what-you-wish" },
+  { name:"Solomon R. Guggenheim Museum", addr:"1071 5th Ave", boro:"Manhattan", dist:7.7, url:"https://www.guggenheim.org", free:"Saturdays 5–8pm: pay-what-you-wish" },
+  { name:"Neue Galerie New York", addr:"1048 5th Ave", boro:"Manhattan", dist:7.7, url:"https://www.neuegalerie.org", free:"First Fri of month: free" },
+  { name:"The Jewish Museum", addr:"1109 5th Ave", boro:"Manhattan", dist:7.9, url:"https://thejewishmuseum.org", free:"Saturdays: always free" },
+  { name:"American Museum of Natural History", addr:"200 Central Park W", boro:"Manhattan", dist:8.1, url:"https://www.amnh.org", free:"NYC residents: pay-what-you-wish" },
+  { name:"Hayden Planetarium / Rose Center", addr:"200 Central Park W", boro:"Manhattan", dist:8.1, url:"https://www.amnh.org/research/hayden-planetarium", free:"With AMNH admission" },
+  { name:"Gilder Center for Science (AMNH)", addr:"415 Columbus Ave", boro:"Manhattan", dist:8.2, url:"https://www.amnh.org/exhibitions/gilder-center", free:"With AMNH admission" },
+  { name:"Nicholas Roerich Museum", addr:"319 W 107th St", boro:"Manhattan", dist:8.5, url:"https://www.roerich.org", free:"Always free" },
+  { name:"Hispanic Society Museum & Library", addr:"613 W 155th St", boro:"Manhattan", dist:9.0, url:"https://hispanicsociety.org", free:"Always free" },
+  { name:"The Cloisters", addr:"99 Margaret Corbin Dr, Fort Tryon Park", boro:"Manhattan", dist:10.0, url:"https://www.metmuseum.org/visit/met-cloisters", free:"NYC residents: pay-what-you-wish" },
+  { name:"MoMA PS1", addr:"22-25 Jackson Ave, Long Island City", boro:"Queens", dist:4.4, url:"https://www.moma.org/ps1", free:"NYC residents: always free" },
+  { name:"Noguchi Museum", addr:"9-01 33rd Rd, Long Island City", boro:"Queens", dist:5.5, url:"https://www.noguchi.org", free:"First Fridays: pay-what-you-wish" },
+  { name:"Museum of the Moving Image", addr:"36-01 35th Ave, Astoria", boro:"Queens", dist:6.4, url:"https://movingimage.us", free:"Fridays 4–8pm: free" },
+  { name:"Queens Museum", addr:"Flushing Meadows–Corona Park", boro:"Queens", dist:7.5, url:"https://queensmuseum.org", free:"Sundays: pay-what-you-wish" },
+  { name:"New York Hall of Science", addr:"47-01 111th St, Corona", boro:"Queens", dist:9.3, url:"https://nysci.org", free:"Fri 2–5pm & Sun 10–11am: free" },
+  { name:"Queens County Farm Museum", addr:"73-50 Little Neck Pkwy, Floral Park", boro:"Queens", dist:12.0, url:"https://www.queensfarm.org", free:"Always free (grounds)" },
+  { name:"The Bronx Museum of the Arts", addr:"1040 Grand Concourse", boro:"Bronx", dist:10.8, url:"https://www.bronxmuseum.org", free:"Always free" },
+  { name:"Poe Cottage", addr:"2640 Grand Concourse", boro:"Bronx", dist:11.0, url:"https://bronxhistoricalsociety.org/poe-cottage", free:null },
+  { name:"Bronx Zoo / Wildlife Conservation Society", addr:"2300 Southern Blvd", boro:"Bronx", dist:11.5, url:"https://bronxzoo.com", free:"Wednesdays: pay-what-you-wish" },
+  { name:"New York Botanical Garden", addr:"2900 Southern Blvd", boro:"Bronx", dist:11.6, url:"https://www.nybg.org", free:"Wed & Sat 9–10am: free (grounds)" },
+  { name:"Valentine-Varian House / Museum of Bronx History", addr:"3266 Bainbridge Ave", boro:"Bronx", dist:12.2, url:"https://bronxhistoricalsociety.org", free:null },
+  { name:"City Island Nautical Museum", addr:"190 Fordham St, City Island", boro:"Bronx", dist:14.5, url:"https://www.cityislandmuseum.org", free:"Always free" },
+  { name:"Staten Island Museum", addr:"1000 Richmond Ter, Snug Harbor", boro:"Staten Island", dist:13.5, url:"https://statenislandmuseum.org", free:"Pay-what-you-wish always" },
+  { name:"Snug Harbor Cultural Center & Botanical Garden", addr:"1000 Richmond Ter", boro:"Staten Island", dist:13.5, url:"https://snug-harbor.org", free:"Grounds always free" },
+  { name:"Staten Island Children's Museum", addr:"1000 Richmond Ter", boro:"Staten Island", dist:13.5, url:"https://www.statenislandkids.org", free:null },
+  { name:"Garibaldi-Meucci Museum", addr:"420 Tompkins Ave", boro:"Staten Island", dist:14.2, url:"https://www.garibaldimeuccimuseum.org", free:null },
+  { name:"Historic Richmond Town", addr:"441 Clarke Ave", boro:"Staten Island", dist:15.0, url:"https://www.historicrichmondtown.org", free:null },
+];
+
+MUSEUMS.sort((a,b) => a.dist - b.dist);
+const TOTAL = MUSEUMS.length;
+let visited = {};
+let filter = 'all';
+let borough = 'all';
+let search = '';
+
+try { visited = JSON.parse(localStorage.getItem('dumbo-museums-v2') || '{}'); } catch(e) {}
+
+function save() {
+  try { localStorage.setItem('dumbo-museums-v2', JSON.stringify(visited)); } catch(e) {}
+}
+
+function toggle(i) {
+  visited[i] = !visited[i];
+  save();
+  render();
+}
+
+document.querySelectorAll('.filter-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    filter = b.dataset.f;
+    document.querySelectorAll('.filter-btn').forEach(x => x.classList.toggle('active', x.dataset.f === filter));
+    render();
+  });
+});
+
+document.querySelectorAll('.borough-tab').forEach(b => {
+  b.addEventListener('click', () => {
+    borough = b.dataset.b;
+    document.querySelectorAll('.borough-tab').forEach(x => x.classList.toggle('active', x.dataset.b === borough));
+    render();
+  });
+});
+
+document.getElementById('search').addEventListener('input', function() {
+  search = this.value.toLowerCase();
+  render();
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if (confirm('Reset all visited museums?')) {
+    visited = {};
+    save();
+    render();
+  }
+});
+
+const BORO_CLASS = { Brooklyn:'boro-bk', Manhattan:'boro-mn', Queens:'boro-qn', Bronx:'boro-bx', 'Staten Island':'boro-si' };
+
+function render() {
+  const visitedCount = Object.values(visited).filter(Boolean).length;
+  const remaining = TOTAL - visitedCount;
+  const pct = Math.round(visitedCount / TOTAL * 100);
+  const yrs = (remaining / 52).toFixed(1);
+
+  document.getElementById('s-visited').textContent = visitedCount;
+  document.getElementById('s-remaining').textContent = remaining;
+  document.getElementById('s-weeks').innerHTML = yrs + '<span style="font-size:1.4rem;color:rgba(250,247,242,0.4)"> yrs</span>';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = visitedCount + ' of ' + TOTAL + ' complete — ' + pct + '%';
+
+  let html = '';
+  let count = 0;
+
+  MUSEUMS.forEach((m, i) => {
+    const isVisited = !!visited[i];
+    const hasFree = !!m.free;
+
+    if (filter === 'free' && !hasFree) return;
+    if (filter === 'unvisited' && isVisited) return;
+    if (filter === 'visited' && !isVisited) return;
+    if (borough !== 'all' && m.boro !== borough) return;
+    if (search && !m.name.toLowerCase().includes(search) && !m.addr.toLowerCase().includes(search) && !m.boro.toLowerCase().includes(search)) return;
+
+    count++;
+    const bc = BORO_CLASS[m.boro] || 'boro-mn';
+
+    html += `<tr class="${isVisited ? 'done' : ''}">
+      <td class="check-cell"><input type="checkbox" ${isVisited ? 'checked' : ''} onchange="toggle(${i})" /></td>
+      <td class="num-cell">${String(i+1).padStart(2,'0')}</td>
+      <td>
+        <div class="mname"><a href="${m.url}" target="_blank" rel="noopener">${m.name}</a></div>
+        <div class="maddr">${m.addr}</div>
+      </td>
+      <td><span class="boro-tag ${bc}">${m.boro}</span></td>
+      <td><span class="dist-text">${m.dist} mi</span></td>
+      <td><span class="free-pill ${hasFree ? 'yes' : 'no'}">${m.free || 'Paid admission'}</span></td>
+    </tr>`;
+  });
+
+  document.getElementById('results-count').textContent = count + ' museum' + (count !== 1 ? 's' : '');
+
+  if (!count) {
+    html = `<tr><td colspan="6"><div class="empty-state">No museums match your current filters.</div></td></tr>`;
+  }
+
+  document.getElementById('tbody').innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
