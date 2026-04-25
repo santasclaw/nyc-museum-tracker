@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>NYC Museum Tracker — From DUMBO</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@300;400;500&family=Courier+Prime&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&family=Courier+Prime&display=swap" rel="stylesheet" />
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -16,15 +16,15 @@
   --ink:      #1c1a16;
   --ink-2:    #5c5850;
   --ink-3:    #9c9890;
-  --terracotta: #b84c2a;
-  --terracotta-light: #f5e8e3;
-  --sage:     #4a6741;
-  --sage-light: #e5ede4;
+  --terracotta: #6f7f74;
+  --terracotta-light: #e8efe9;
+  --sage:     #56655c;
+  --sage-light: #e8efe9;
   --gold:     #8a7340;
   --gold-light: #f2edd8;
   --border:   #d4cec4;
   --border-2: #c4bdb2;
-  --serif:    'Playfair Display', Georgia, serif;
+  --serif:    'Cormorant Garamond', Georgia, serif;
   --sans:     'Jost', system-ui, sans-serif;
   --mono:     'Courier Prime', 'Courier New', monospace;
 }
@@ -463,6 +463,303 @@ footer {
   .col-num { display: none; }
   .body-wrap { padding: 1.5rem 1rem 4rem; }
 }
+
+/* --- Nikki pass: dramatic masthead, less template-y, stronger mobile --- */
+
+.masthead {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(111,127,116,0.20), transparent 30%),
+    linear-gradient(135deg, #25231f 0%, #302c27 58%, #3a352e 100%);
+  padding: clamp(2.75rem, 8vw, 5rem) 1.25rem clamp(2.2rem, 6vw, 3.25rem);
+}
+
+.masthead::before {
+  background:
+    linear-gradient(90deg, rgba(250,247,242,0.025) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(250,247,242,0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent 88%);
+}
+
+.masthead-inner {
+  max-width: 1040px;
+}
+
+.masthead-eyebrow {
+  color: #aeb8ad;
+  opacity: 0.92;
+  font-size: clamp(0.62rem, 1.8vw, 0.72rem);
+  letter-spacing: 0.16em;
+  margin-bottom: clamp(0.8rem, 2vw, 1.1rem);
+}
+
+.masthead-eyebrow::after {
+  background: #aeb8ad;
+  max-width: 110px;
+}
+
+.masthead h1 {
+  font-family: var(--serif);
+  font-size: clamp(3.25rem, 14vw, 6.4rem);
+  font-weight: 500;
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  max-width: 760px;
+  margin-bottom: clamp(0.85rem, 2.4vw, 1.2rem);
+  text-wrap: balance;
+}
+
+.masthead h1 em {
+  color: #d9cec0;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+.masthead-sub {
+  color: rgba(250,247,242,0.62);
+  font-size: clamp(0.72rem, 2.1vw, 0.9rem);
+  line-height: 1.45;
+  letter-spacing: 0.14em;
+  margin-bottom: clamp(1.8rem, 5vw, 2.65rem);
+  max-width: 540px;
+}
+
+.stats-bar {
+  gap: 0;
+  border-top-color: rgba(250,247,242,0.14);
+  padding-top: clamp(1.2rem, 3vw, 1.65rem);
+}
+
+.stat-block {
+  padding-right: clamp(1.1rem, 4vw, 2.6rem);
+  margin-right: clamp(1.1rem, 4vw, 2.6rem);
+  border-right-color: rgba(250,247,242,0.12);
+}
+
+.stat-num {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 8vw, 3.2rem);
+  letter-spacing: -0.04em;
+}
+
+.stat-label,
+.progress-text {
+  color: rgba(250,247,242,0.48);
+}
+
+.progress-fill {
+  background: #aeb8ad;
+}
+
+.borough-tabs {
+  gap: 6px;
+  border-bottom: none;
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  padding-bottom: 0.25rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.borough-tab {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(250,247,242,0.62);
+  margin-bottom: 0;
+  padding: 9px 14px;
+}
+
+.borough-tab.active {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--ink);
+}
+
+.controls {
+  align-items: stretch;
+}
+
+.filter-btn {
+  border-radius: 999px;
+}
+
+@media (max-width: 760px) {
+  .masthead {
+    padding: 2.5rem 1rem 1.9rem;
+  }
+
+  .masthead h1 {
+    font-size: clamp(3rem, 17vw, 4.5rem);
+    line-height: 0.88;
+  }
+
+  .masthead-sub {
+    max-width: 320px;
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .stat-block {
+    padding: 0;
+    margin: 0;
+    border-right: none;
+  }
+
+  .stat-num {
+    font-size: clamp(1.9rem, 9vw, 2.5rem);
+  }
+
+  .progress-block {
+    grid-column: 1 / -1;
+    min-width: 0;
+    padding-top: 4px;
+  }
+
+  .body-wrap {
+    padding: 1.35rem 0.85rem 3.5rem;
+  }
+
+  .controls {
+    gap: 8px;
+  }
+
+  .search-wrap {
+    flex-basis: 100%;
+    min-width: 100%;
+  }
+
+  .filter-btn {
+    flex: 1 1 auto;
+    min-height: 38px;
+    padding: 9px 11px;
+  }
+
+  .results-meta {
+    padding: 0 2px;
+  }
+
+  .table-card {
+    background: transparent;
+    border: none;
+    overflow: visible;
+  }
+
+  table, tbody, tr, td {
+    display: block;
+    width: 100%;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    position: relative;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 14px 12px 48px;
+    margin-bottom: 11px;
+    box-shadow: 0 10px 24px rgba(28,26,22,0.045);
+  }
+
+  tbody tr:hover {
+    background: var(--cream);
+  }
+
+  tbody tr.done {
+    opacity: 0.5;
+  }
+
+  td {
+    padding: 0;
+    font-size: 0.9rem;
+  }
+
+  .check-cell {
+    position: absolute;
+    top: 16px;
+    left: 15px;
+    width: 20px;
+    text-align: left;
+  }
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+
+  .num-cell {
+    display: none;
+  }
+
+  .mname {
+    font-size: 1rem;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  .maddr {
+    font-size: 0.72rem;
+    line-height: 1.3;
+    margin-bottom: 9px;
+  }
+
+  td:nth-child(4),
+  td:nth-child(5),
+  td:nth-child(6) {
+    display: inline-block;
+    width: auto;
+    margin-right: 6px;
+    margin-top: 4px;
+    vertical-align: middle;
+  }
+
+  .boro-tag,
+  .free-pill {
+    border-radius: 999px;
+    font-size: 0.66rem;
+    padding: 4px 8px;
+  }
+
+  .dist-text {
+    display: inline-block;
+    background: var(--paper-2);
+    border-radius: 999px;
+    padding: 4px 8px;
+    font-size: 0.68rem;
+    color: var(--ink-2);
+  }
+
+  footer {
+    display: block;
+  }
+
+  .footer-note + .footer-note {
+    margin-top: 0.45rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .masthead h1 {
+    font-size: clamp(2.8rem, 16vw, 3.8rem);
+  }
+
+  .stat-label {
+    font-size: 0.58rem;
+  }
+
+  .filter-btn {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+  }
+}
+
 </style>
 </head>
 <body>
