@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NYC Museum Tracker — From DUMBO</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f1eb;
+    --surface: #fff;
+    --ink: #1a1814;
+    --ink-2: #6b6760;
+    --ink-3: #a9a59f;
+    --accent: #c8430a;
+    --accent-light: #fae8e0;
+    --green: #2d6a3f;
+    --green-light: #e4f0e8;
+    --border: #e2ddd6;
+    --border-dark: #c9c4bc;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 6px;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border-dark);
+    padding-bottom: 1.5rem;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+    color: var(--ink-2);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .progress-wrap {
+    flex: 1;
+    min-width: 160px;
+  }
+
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-label {
+    font-size: 0.75rem;
+    color: var(--ink-3);
+    font-family: var(--mono);
+  }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+    align-items: center;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-3);
+    pointer-events: none;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 8px 12px 8px 34px;
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius);
+    font-family: var(--sans);
+    font-size: 0.875rem;
+    background: var(--surface);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input[type="text"]:focus { border-color: var(--accent); }
+
+  .filter-btn {
+    padding: 7px 14px;
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-family: var(--sans);
+    font-size: 0.8125rem;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover { border-color: var(--ink-2); color: var(--ink); }
+  .filter-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  thead th {
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: #faf8f5;
+  }
+
+  .col-check  { width: 40px; }
+  .col-week   { width: 56px; }
+  .col-name   { width: auto; }
+  .col-dist   { width: 72px; }
+  .col-free   { width: 200px; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #faf8f5; }
+  tbody tr.done { opacity: 0.45; }
+  tbody tr.done .museum-name { text-decoration: line-through; }
+
+  td {
+    padding: 11px 14px;
+    vertical-align: top;
+    font-size: 0.875rem;
+  }
+
+  .check-cell {
+    text-align: center;
+    padding-top: 13px;
+  }
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .week-pill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--ink-3);
+    background: #f2ede6;
+    border-radius: 4px;
+    padding: 2px 6px;
+    white-space: nowrap;
+  }
+
+  .week-pill.done {
+    background: var(--green-light);
+    color: var(--green);
+  }
+
+  .museum-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .museum-name a {
+    color: var(--ink);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .museum-name a:hover { color: var(--accent); }
+
+  .museum-addr {
+    font-size: 0.775rem;
+    color: var(--ink-3);
+  }
+
+  .dist {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--ink-2);
+  }
+
+  .free-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    line-height: 1.5;
+  }
+
+  .free-tag.yes { background: var(--green-light); color: var(--green); }
+  .free-tag.no  { background: #f2ede6; color: var(--ink-3); }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--ink-3);
+    font-size: 0.9rem;
+  }
+
+  footer {
+    margin-top: 2rem;
+    font-size: 0.78rem;
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  @media (max-width: 600px) {
+    .col-free { display: none; }
+    .col-dist { width: 60px; }
+    h1 { font-size: 1.75rem; }
+    td, th { padding: 9px 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="header-top">
+      <h1>NYC <em>Museums</em></h1>
+      <span class="subtitle">From DUMBO, Brooklyn</span>
+    </div>
+    <div class="stats-row">
+      <div class="stat">
+        <span class="stat-num" id="s-visited">0</span>
+        <span class="stat-label">Visited</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num" id="s-remaining">34</span>
+        <span class="stat-label">Remaining</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="progress-label" id="progress-label">0 of 34 — 0%</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Search museums…" />
+    </div>
+    <button class="filter-btn active" data-f="all">All</button>
+    <button class="filter-btn" data-f="free">Free days only</button>
+    <button class="filter-btn" data-f="unvisited">Unvisited</button>
+    <button class="filter-btn" data-f="visited">Visited</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-check"></th>
+          <th class="col-week">Week</th>
+          <th class="col-name">Museum</th>
+          <th class="col-dist">Distance</th>
+          <th class="col-free">Free public days</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <footer>Distances are approximate walking/transit from DUMBO, Brooklyn. Free admission policies may change — always verify before visiting.</footer>
+</div>
+
+<script>
+const MUSEUMS = [
+  { name:"Museum of Food and Drink (MOFAD)", addr:"55 Water St 2nd Fl, Brooklyn", dist:0.3, url:"https://www.mofad.org", free:"Pay-what-you-wish (suggested)" },
+  { name:"New York Transit Museum", addr:"99 Schermerhorn St, Brooklyn", dist:0.7, url:"https://www.nytransitmuseum.org", free:null },
+  { name:"Center for Brooklyn History", addr:"128 Pierrepont St, Brooklyn", dist:1.0, url:"https://www.bklynlibrary.org/locations/center-for-brooklyn-history", free:"Always free" },
+  { name:"Museum at Eldridge Street", addr:"12 Eldridge St, Manhattan", dist:1.6, url:"https://www.eldridgestreet.org", free:"Fridays: pay-what-you-wish" },
+  { name:"Museum of Jewish Heritage", addr:"36 Battery Pl, Manhattan", dist:1.9, url:"https://mjhnyc.org", free:"Wed & Thurs evenings: free" },
+  { name:"Tenement Museum", addr:"103 Orchard St, Manhattan", dist:2.0, url:"https://www.tenement.org", free:null },
+  { name:"New Museum", addr:"235 Bowery, Manhattan", dist:2.3, url:"https://www.newmuseum.org", free:"Thursdays 7–9pm: pay-what-you-wish" },
+  { name:"Hall des Lumières", addr:"49 Chambers St, Manhattan", dist:2.4, url:"https://halldeslumieres.com", free:null },
+  { name:"Mercer Labs", addr:"21 Dey St, Manhattan", dist:2.8, url:"https://mercerlabs.com", free:null },
+  { name:"The Bone Museum", addr:"255 McKibbin St, Brooklyn", dist:3.0, url:"https://www.thebonemuseum.com", free:null },
+  { name:"Brooklyn Museum", addr:"200 Eastern Pkwy, Brooklyn", dist:3.4, url:"https://www.brooklynmuseum.org", free:"First Saturdays 5–11pm: free" },
+  { name:"Color Factory NYC", addr:"251 Spring St, Manhattan", dist:3.7, url:"https://colorfactory.co/nyc", free:null },
+  { name:"The Morgan Library & Museum", addr:"225 Madison Ave, Manhattan", dist:4.2, url:"https://www.themorgan.org", free:"Fridays 5–8pm: free" },
+  { name:"MoMA PS1", addr:"22-25 Jackson Ave, Queens", dist:4.4, url:"https://www.moma.org/ps1", free:"NYC residents: always free" },
+  { name:"Museum of Illusions NYC", addr:"77 8th Ave, Manhattan", dist:4.7, url:"https://moinyc.com", free:null },
+  { name:"Whitney Museum of American Art", addr:"99 Gansevoort St, Manhattan", dist:4.8, url:"https://whitney.org", free:"Fridays 5–10pm: pay-what-you-wish; 2nd Sundays: free" },
+  { name:"ARTECHOUSE NYC", addr:"439 W 15th St, Manhattan", dist:5.0, url:"https://www.artechouse.com/location/nyc", free:null },
+  { name:"Jewish Children's Museum", addr:"792 Eastern Pkwy, Brooklyn", dist:5.2, url:"https://jcm.museum", free:null },
+  { name:"The Museum of Modern Art (MoMA)", addr:"11 W 53rd St, Manhattan", dist:6.1, url:"https://www.moma.org", free:"Free for under 16" },
+  { name:"Arte Museum New York", addr:"61 Chelsea Piers, Manhattan", dist:6.2, url:"https://arte.museum/newyork", free:null },
+  { name:"Museum of the Moving Image", addr:"36-01 35th Ave, Queens", dist:6.4, url:"https://movingimage.us", free:"Fridays 4–8pm: free" },
+  { name:"Intrepid Sea, Air & Space Museum", addr:"Pier 86, W 46th St, Manhattan", dist:6.8, url:"https://www.intrepidmuseum.org", free:null },
+  { name:"The Frick Collection", addr:"1 E 70th St, Manhattan", dist:7.0, url:"https://www.frick.org", free:"Free for under 10" },
+  { name:"Living Torah Museum", addr:"1601 41st St, Brooklyn", dist:7.1, url:"https://www.torahmuseum.com", free:"Free tours (by appointment)" },
+  { name:"Yeshiva University Museum", addr:"15 W 16th St, Manhattan", dist:7.2, url:"https://www.yumuseum.org", free:null },
+  { name:"The Metropolitan Museum of Art", addr:"1000 5th Ave, Manhattan", dist:7.6, url:"https://www.metmuseum.org", free:"NYC residents: pay-what-you-wish" },
+  { name:"Solomon R. Guggenheim Museum", addr:"1071 5th Ave, Manhattan", dist:7.7, url:"https://www.guggenheim.org", free:"Saturdays 5–8pm: pay-what-you-wish" },
+  { name:"The Jewish Museum", addr:"1109 5th Ave, Manhattan", dist:7.9, url:"https://thejewishmuseum.org", free:"Saturdays: always free" },
+  { name:"American Museum of Natural History", addr:"200 Central Park W, Manhattan", dist:8.1, url:"https://www.amnh.org", free:"NYC residents: pay-what-you-wish" },
+  { name:"Hayden Planetarium / Rose Center", addr:"200 Central Park W, Manhattan", dist:8.1, url:"https://www.amnh.org/research/hayden-planetarium", free:"With AMNH admission" },
+  { name:"Gilder Center (AMNH)", addr:"415 Columbus Ave, Manhattan", dist:8.2, url:"https://www.amnh.org/exhibitions/gilder-center", free:"With AMNH admission" },
+  { name:"New York Hall of Science", addr:"47-01 111th St, Corona, Queens", dist:9.3, url:"https://nysci.org", free:"Fri 2–5pm & Sun 10–11am: free" },
+  { name:"The Bronx Museum of the Arts", addr:"1040 Grand Concourse, Bronx", dist:10.8, url:"https://www.bronxmuseum.org", free:"Always free" },
+  { name:"Staten Island Museum", addr:"1000 Richmond Ter, Staten Island", dist:13.5, url:"https://statenislandmuseum.org", free:"Pay-what-you-wish always" },
+];
+
+const TOTAL = MUSEUMS.length;
+let visited = {};
+let filter = 'all';
+let search = '';
+
+try { visited = JSON.parse(localStorage.getItem('dumbo-museums') || '{}'); } catch(e) {}
+
+function save() {
+  try { localStorage.setItem('dumbo-museums', JSON.stringify(visited)); } catch(e) {}
+}
+
+function toggle(i) {
+  visited[i] = !visited[i];
+  save();
+  render();
+}
+
+function setFilter(f) {
+  filter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.f === f);
+  });
+  render();
+}
+
+document.querySelectorAll('.filter-btn').forEach(b => {
+  b.addEventListener('click', () => setFilter(b.dataset.f));
+});
+
+document.getElementById('search').addEventListener('input', function() {
+  search = this.value.toLowerCase();
+  render();
+});
+
+function render() {
+  const visitedCount = Object.values(visited).filter(Boolean).length;
+  const remaining = TOTAL - visitedCount;
+  const pct = Math.round(visitedCount / TOTAL * 100);
+
+  document.getElementById('s-visited').textContent = visitedCount;
+  document.getElementById('s-remaining').textContent = remaining;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = visitedCount + ' of ' + TOTAL + ' — ' + pct + '%';
+
+  const tbody = document.getElementById('tbody');
+  let html = '';
+  let count = 0;
+
+  MUSEUMS.forEach((m, i) => {
+    const isVisited = !!visited[i];
+    const hasFree = !!m.free;
+    if (filter === 'free' && !hasFree) return;
+    if (filter === 'unvisited' && isVisited) return;
+    if (filter === 'visited' && !isVisited) return;
+    if (search && !m.name.toLowerCase().includes(search) && !m.addr.toLowerCase().includes(search)) return;
+    count++;
+    const weekNum = i + 1;
+    html += `<tr class="${isVisited ? 'done' : ''}">
+      <td class="check-cell"><input type="checkbox" ${isVisited ? 'checked' : ''} onchange="toggle(${i})" /></td>
+      <td><span class="week-pill ${isVisited ? 'done' : ''}">${isVisited ? '✓' : 'Wk ' + weekNum}</span></td>
+      <td>
+        <div class="museum-name"><a href="${m.url}" target="_blank" rel="noopener">${m.name}</a></div>
+        <div class="museum-addr">${m.addr}</div>
+      </td>
+      <td><span class="dist">${m.dist} mi</span></td>
+      <td><span class="free-tag ${hasFree ? 'yes' : 'no'}">${m.free || 'Paid admission'}</span></td>
+    </tr>`;
+  });
+
+  if (!count) {
+    html = '<tr><td colspan="5"><div class="empty-state">No museums match your filters.</div></td></tr>';
+  }
+
+  tbody.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
